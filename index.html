@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Drupal development practices</title>
+
+		<meta name="author" content="Wolfgang Ziegler // fago">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/ddd.css" id="theme2">
+		<link rel="stylesheet" href="css/theme/drunomics.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+
+<section>
+
+  <section class="ddd-intro" data-background="images/ddd-background.jpg" style=""">
+    <h1>Drupal development practices with drush, Vagrant, Ansible & Docker</h1>
+    <h2>Wolfgang Ziegler // fago - @the_real_fago</h2>
+  </section>
+</section>
+
+<section>
+  <section>
+
+    <h2>About me</h2>
+    <p>
+
+    <ul>
+      <li>Wolfgang Ziegler</li>
+      <li>@the_real_fago auf Twitter</li>
+      <li>drupal.org/u/fago</li>
+      <li>CEO of drunomics</li>
+    </ul>
+    </p>
+
+    <div>
+      <img style="border: 0px" src="images/logo_drunomics.png" width="400px">
+    </div>
+
+    <aside class="notes">
+      Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+    </aside>
+
+
+  </section>
+  <section>
+    <h2>Contributions</h2>
+    <ul>
+      <li>Diverse modules since ca. 2006</li>
+      <ul>
+        <li>Rules</li>
+        <li>Entity API</li>
+        <li>Field-collection</li>
+        <li>Profile2</li>
+      </ul>
+      </li>
+      <li>Drupal core subsystem maintainer</li>
+      <ul>
+        <li>Form system</li>
+        <li>Entity API</li>
+      </ul>
+      <li>Drupal 8 Entity API "Initiative"</li>
+    </ul>
+  </section>
+</section>
+<section>
+<section data-markdown>
+<script type="text/template">
+## Goals
+- Quick project clone and setup
+  - without devops knowledge
+  - reproducable results
+- Consistent project layout for developers
+- Consistent deployment commands
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Our solution
+- Tailored commands & setup scripts
+- drunomics Project specification
+- Devsetup: Vagrant + Ansible
+- Docker: CI, Speedup!
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## drunomics Project specification
+- devsetup: project.yml, provision-vars.yml
+- web: Web root
+- composer.json
+- dumps, scripts, ...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+  ## Commands: drush extension
+  - dpclone
+  - dpcreate
+  - dpsetup
+  - deploy
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Repository layouts
+- as before
+- simple (just web)
+- overriddes
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Consistency for devs?
+- dpsetup takes care
+- Creates links as necessary
+- Per env settings.php
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Settings per environment
+- live, test, dev, vagrant
+- live, test, dev
+</script>
+</section>
+
+<!--<section data-markdown>
+<script type="text/template">
+## Multiple dev envs
+- Detect environment based on $ENV
+- Configure based on FQDN and fixtures/patterns
+-- Environment is app acgnostic
+</script>
+  <aside class="notes">
+    Environment knows app, or app knows environment?
+  </aside>
+</section>-->
+
+<section data-markdown>
+<script type="text/template">
+## .gitignore
+- files
+- sites/default/settings.php
+- .htaccess
+- dumps
+- Contrib modules?
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Git for deployments?
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Git based deployments
+- Advantages:
+ - Easy updates and history, e.g. with Git flow
+ - Simpler file verification
+ - Commonly used by Drupal hosters
+- Disadvantages:
+ - Duplicates content in VCS (Make file + code)
+ - Hard to review changes
+ - Merge conflicts e.g. in compiled CSS
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## The best of both worlds
+- Only commit project code
+- Build before deploying dev sites
+- Maintain deployment branch
+  - Builds of releases
+  - Automatic
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## How to build?
+- drush make
+- composer install
+- grunt, gulp, phing, ant, ...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## How to build?
+- fast
+- easy
+- reliable
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Composer
+- Dependency manager for PHP<!-- .element: class="fragment" data-fragment-index="1" -->
+- Use and publish packages<!-- .element: class="fragment" data-fragment-index="1" -->
+- Package-metadata: composer.json<!-- .element: class="fragment" data-fragment-index="1" -->
+- Repository: packagist.org<!-- .element: class="fragment" data-fragment-index="1" -->
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Composer: How it's used.
+- composer.json (compatibility) and composer.lock (concrete versions)
+- `composer install` - fast and reliable
+- `composer update drupal/core`
+- Can add drush, behat, ...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Composer & Drupal
+- http://drupal-composer.org/
+- Session: Composer in Drupal world
+  04/18/2015 - 10:30, Amphitheather 1
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Per-Project drush
+- Work with d8 sites -> Some drush 7
+- More robust deployment.
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Syncing content
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Why to sync content?
+- Test drive with real content
+- Example content fails to reproduce issues
+- Realistic update testing
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Issues
+- Syncing large DBs takes a lot of time
+- Missing managed files
+- Search Index out of date
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Syncing db content
+- Per project drushrc.php for reasonable defaults
+- Share per project aliases of @dev and possibly @live
+- Skip syncing caches, watchdog, accesslog...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Search index
+- Re-indexing might take long
+- Sync ready search index
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Managed files
+ - stage_file_proxy module
+ - Activate and pre-configure on dev
+ - Public files only
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Local devsetup
+## Vagrant & Ansible
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Vagrant - The idea.
+- Reproducable results without sysadmin knowledge
+- `vagrant up`
+- Init content.
+- Access site at PROJECT.local
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Vagrant - The problems.
+- Performance
+ - Bad performance on NFS shares  
+   Solution: sycnd - or vagrant auto-rsync <!-- .element: class="fragment" data-fragment-index="1" -->
+ - Eats lots of disk space  
+   Solution: docker!<!-- .element: class="fragment" data-fragment-index="2" -->
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Vagrantfile maintenance
+- Central Vagrantfile that reads project.yml
+- Define project settings in project.yml
+
+  --> Easy updating of the central Vagrantfile
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Version updates
+- Handing vagrant, vagrant plugins & Virtualbox updates
+- Solution: Provision developer machines with Ansible <!-- .element: class="fragment" data-fragment-index="1" -->
+- Testdrive version updates before rolling them out <!-- .element: class="fragment" data-fragment-index="2" -->
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Ansible
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Ansible - Overview
+- Simple IT automation
+- Powerful
+  -- Configuration management
+  -- Orchestration
+- Agentless
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## How does it work?
+- YAML files for
+  - variables (settings)
+  - playbooks (describe setup)
+  - roles
+- inventory
+- Re-usable roles
+- Jinja2 Templates, Python
+</script>
+</section>
+
+<section data-markdown="">
+<script type="text/template">
+### roles/drunomics.redis/tasks/main.yml
+    - name: Add PPA
+      apt_repository: repo="ppa:chris-lea/redis-server"
+  
+    - name: Install Redis
+      apt: pkg=redis-server state=present dpkg_options="force-confdef,force-confnew"
+  
+    - name: Start Redis
+      service: name=redis-server state=started enabled=true
+      notify: restart redis
+  
+    - name: Configuring Redis.
+      template: src=etc-ansible-redis.conf.j2 dest=/etc/redis/ansible-redis.conf mode=644
+      notify: restart redis
+  
+    - name: Add custom config for Redis
+      lineinfile: dest=/etc/redis/redis.conf line="include /etc/redis/ansible-redis.conf"
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## Ansible modules
+- Lots of existing modules
+  - File, System operations, ...
+  - For configuring certain dameons  
+    Mysql, Postresql, Mongo, Redis, Nagios, Monit, ...   
+  - Including cloud modules  
+    ec2, s3, digital ocean, gce, rackspace, docker, openstack 
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## Ansible & Devsetup
+  - Use Ansible for provisioning vagrant boxes  
+    `vagrant provision`
+  - Use Ansible to provision dev machines
+  - Provision infrastructure, CI sys, CI instances...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Vagrant & Ansible
+  - `vagrant provision` provisions machine
+  - Project can define ansible roles and settings
+  - First `vagrant up` takes time.
+</script>
+</section> 
+  
+<section data-markdown>
+<script type="text/template">
+# Docker
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## Docker
+- Containerize applications
+- Simplifies using Linux containers
+- More lightweight than VMs
+- Docker Hub for sharing Images
+- Linux only.
+</script>
+</section>  
+
+<section data-markdown>
+<script type="text/template">
+## Docker: Micro services?
+How to containerize apps?
+
+- Containerize each service
+- Container <-> VM
+
+Many containers come with management complexity<!-- .element: class="fragment" data-fragment-index="1" -->
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Leveraging layers
+- Common files in images etc. are shared
+- Starting a container creates a new layer
+- Copy on Write (AUFS, BTRFS, ...)
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## Docker containers & Updates?
+- Dockerfile scripts building images
+- Do not run updates in container - replace them
+- Keeping data: Data volumes
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Docker & Vagrant
+- Docker as provider, replaces Virtualbox
+- Non-Linux: Thin Management VM
+- Advantages:<!-- .element: class="fragment" data-fragment-index="1" -->
+ - Way faster boot-up & initial setup
+ - Linux only: Fast synced folders!
+ - Requires less disk space, CoW
+ - Leverage Docker-Hub
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## drunomics docker Images
+- Container ~ VM
+- Ubuntu 14.04 LTS
+- Built with ansible
+  - Easy customization: Re-run plays with custom variables!<!-- .element: class="fragment" data-fragment-index="1" -->
+</script>
+</section>
+  
+<section data-markdown>
+<script type="text/template">
+## drunomics @ docker Hub
+[registry.hub.docker.com/repos/drunomics](https://registry.hub.docker.com/repos/drunomics)
+
+- lamp
+- lamp-redis
+- lamp-redis-solr
+- lamp-redis-elasticsearch
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+  ## drunomics ansible roles
+  [github.com/drunomics](https://github.com/drunomics)
+
+  - ansible-role-mysql
+  - ansible-role-redis
+  - ansible-role-solr
+  - ansible-role-elasticsearch
+  - ansible-role-*
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Docker & Ansible
+- Provision images
+- Provision docker containers
+</script>
+</section>
+
+  <section data-markdown>
+<script type="text/template">
+## Docker & CI
+- Docker is great for CI
+- Managing lots of containers -> Ansible
+- Leverage same images & config as Vagrant
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## drunomics CI
+- Auto-provision environments
+- Triggered on Git push of a branch
+- Intelligently manages container data / content
+- Great for testing!
+</script>
+</section>
+<section data-markdown>
+<script type="text/template">
+## Workflow
+- Git push (branch feature/TICKET)
+- Jenkins triggers Ansible<!-- .element: class="fragment" data-fragment-index="1" -->
+- Ansible starts Docker container<!-- .element: class="fragment" data-fragment-index="2" -->
+- Ansible uses drush command to configure app<!-- .element: class="fragment" data-fragment-index="3" -->
+- Ansible uses drush command to deploy changes<!-- .element: class="fragment" data-fragment-index="4" -->
+</script>
+</section>
+<section data-markdown>
+<script type="text/template">
+## Jenkins jobs
+- (Re-)Build project image
+- Start, Stop, Destroy containers
+- Deploy branch
+- Regular job for tests results
+</script>
+</section>
+
+</section>
+
+  <section data-markdown>
+<script type="text/template">
+# That's how we do it.
+### Questions? Feedback? Experiences?
+</script>
+</section>  
+            </div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          // Always enable hightlight.js.
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return true }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
